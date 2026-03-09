@@ -302,21 +302,20 @@
       v = v.replace(kwPattern, (match, kw) => kw + "보톡스")
            .replace(fillerPattern, (match, kw) => kw + "필러");
 
-      // 3. 가격 처리 (15.400 -> 15,400원)
+      // 3. 금액 처리 고도화 (백만 단위 이상 대응)
+      // 숫자 사이의 마침표(.)를 모두 제거하고 4자리 이상의 숫자 뭉치를 찾거나, 이미 원이 붙은 경우 처리
       v = v.replace(/(\d{1,3}(?:\.\d{3})+|\d{4,12})/g, (match) => {
-        const dotCount = (match.match(/\./g) || []).length;
-        if (dotCount >= 2) return match; 
-
+        // 소수점이 2개 이상이거나 숫자가 4자리 이상일 때 금액으로 판단
         let numStr = match.replace(/\./g, "");
         let num = parseInt(numStr, 10);
         
-        if (!isNaN(num)) {
+        if (!isNaN(num) && (match.includes('.') || num >= 1000)) {
           return num.toLocaleString() + "원";
         }
         return match;
       });
 
-      // 이미 "원"이 있는 경우 쉼표 처리
+      // 이미 "원"이 있는 경우 중복 방지 및 쉼표 재정렬
       v = v.replace(/(\d{1,3}(?:,\d{3})*|\d+)원/g, (match, p1) => {
         let n = parseInt(p1.replace(/,/g, ""), 10);
         return n.toLocaleString() + "원";
