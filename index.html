@@ -335,7 +335,7 @@ v = v.replace(/(\d{1,3}(?:[.,]\d{3})+|\d{3,12})/g, (match) => {
 * 4. 핵심 수정 부분: 금액 변환 로직
        * 뒤에 샷, cc, u, unit, 분, peak 등이 붙어있으면 '원'을 붙이지 않음
        */
-      v = v.replace(/(\d{1,3}(?:[.,]\d{3})+|\d{2,12})(?!\s*(?:샷|cc|u|unit|회|개|팩))/gi, (match) => {
+      v = v.replace(/(\d{1,3}(?:[.,]\d{3})+|\d{2,12})(?!\s*(?:샷|cc|CC|ccu|unit|회|개|유닛))/gi, (match) => {
         // 이미 '원'이 붙어있거나 '만'이 붙어있으면 건너뜀
         if (v.includes(match + "원") || v.includes(match + "만")) return match;
         
@@ -417,6 +417,7 @@ v = v.replace(/(\d{1,3}(?:[.,]\d{3})+|\d{3,12})/g, (match) => {
   </script>
 </body>
 </html>
+
 
 
 
