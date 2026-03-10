@@ -313,7 +313,7 @@ v = v.replace(/(?:잔액|잔여|잔금|잔)(?:\s|:|-)*(\d{1,3}(?:[.,]\d{3})+|\d{
            .replace(fillerPattern, (match, kw) => kw + "필러");
 
 // 4. 금액 처리 (마침표, 쉼표, 생숫자 모두 대응)
-v = v.replace(/(\d{1,3}(?:[.,]\d{3})+|\d{4,12})/g, (match) => {
+v = v.replace(/(\d{1,3}(?:[.,]\d{3})+|\d{3,12})/g, (match) => {
   let numStr = match.replace(/[.,]/g, "");
   let num = parseInt(numStr, 10);
   if (!isNaN(num) && num >= 10) return num.toLocaleString() + "원";
@@ -388,6 +388,7 @@ v = v.replace(/(\d{1,3}(?:[.,]\d{3})+|\d{4,12})/g, (match) => {
   </script>
 </body>
 </html>
+
 
 
 
