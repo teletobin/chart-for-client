@@ -15,7 +15,7 @@
       --primary: #f06292; /* 메인 핑크 */
       --primary-dark: #d81b60; 
       --primary-light: #fce4ec; /* 배경 핑크 */
-      --text: #373d49; 
+      --text: #373d49; /* Sophisticated dark grey */
       --text-light: #6b7280;
       --card-bg: #ffffff;
       --border: rgba(240, 98, 146, 0.2);
@@ -128,7 +128,6 @@
       box-shadow: var(--shadow);
       transition: all 0.3s ease;
     }
-    .panel:focus-within { border-color: var(--primary); box-shadow: 0 12px 30px rgba(240, 98, 146, 0.1); }
 
     .panel-header {
       padding: 16px 20px;
@@ -166,22 +165,6 @@
 
     #output { background: #fff; }
 
-    .panel-footer {
-      padding: 14px 20px;
-      font-size: 12px;
-      background: #fafafa;
-      border-top: 1px solid #f5f5f5;
-      color: var(--text-light);
-    }
-
-    footer {
-      padding: 20px 0;
-      text-align: center;
-      font-size: 13px;
-      color: var(--text-light);
-      margin-top: auto;
-    }
-
     #toast {
       position: fixed;
       bottom: 40px;
@@ -195,7 +178,6 @@
       font-weight: 500;
       transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       z-index: 1000;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
   </style>
@@ -220,26 +202,16 @@
           <span class="panel-title">원본 데이터 입력</span>
           <span id="inputStatus" class="status-badge">대기중</span>
         </div>
-        <textarea id="input" placeholder="차트 내용을 복사해서 붙여넣어 주세요."></textarea>
-        <div class="panel-footer">
-          메모용 특수문자나 약어가 자동으로 정제됩니다.
-        </div>
+        <textarea id="input" placeholder="차트 내용을 붙여넣으세요."></textarea>
       </section>
 
       <section class="panel">
         <div class="panel-header">
           <span class="panel-title">정리된 결과</span>
         </div>
-        <textarea id="output" placeholder="정리된 결과가 여기에 표시됩니다."></textarea>
-        <div class="panel-footer" id="msgBox">
-          고객 안내용으로 바로 사용 가능합니다.
-        </div>
+        <textarea id="output" placeholder="정리된 결과가 표시됩니다."></textarea>
       </section>
     </div>
-
-    <footer>
-      &copy; 2026. 블리비 홍대점 고객안내용 차트정리
-    </footer>
   </div>
 
   <div id="toast">복사되었습니다.</div>
@@ -252,162 +224,119 @@
     const elBtnClear = document.getElementById('btnClear');
     const elToast = document.getElementById('toast');
 
-    let isEditingOutput = false;
-
-    // 보톡스 및 필러 패턴 정의
     const kwPattern = /(승모근|이마|눈가|미간|자갈턱|종아리|허벅지|눈밑|입꼬리|스킨|사각턱|측두근|턱|광대|보상근|인중|침샘|주름)\s*(?:btx|b)\b/gi;
     const fillerPattern = /(팔자|옆볼|눈밑고랑|눈밑|앞볼|미간|이마|관자|관자놀이|입술|애교|입꼬리|코|콧대|턱|턱끝|마리오넷|주름|볼)\s*f\b/gi;
 
-    /**
-     * 텍스트 변환 로직
-     */
     function transformText(line) {
       let v = line.trim();
       if (!v) return null;
 
-      // 불필요한 라인 필터링
-      if (v.startsWith("ㄴ") || v.startsWith("L") || v.startsWith("★") || v.startsWith("원장님") || 
-          v.startsWith("**") || v.startsWith("특이사항") || v.startsWith("이름") || 
-          v.startsWith("내원경로") || v.startsWith("~")) return null;
+      // 1. 특정 텍스트 삭제 (1-1 등)
+     v = v.replace(/\b1-1\b/g, " ");
 
-      // 1. 기본 약어 및 요청 대체어 치환
-      v = v.replace(/\\\*/g, "*")
-           .replace(/1-1/g, "")
-           .replace(/스보/g, "스킨보톡스")
+// 1-2. 추가 요청 단어 삭제 (*마크뷰+, 마크뷰 등)
+// 특수문자(*)가 포함되어 있으므로 이스케이프(\*) 처리와 긴 단어부터 매칭되도록 순서를 배치했습니다.
+v = v.replace(/\*마크뷰\+|\*마크뷰|마크뷰완료|마크뷰\+|마크뷰|\*마크\+|\*마\+|\*마크/g, "");
+      
+      // 불필요한 줄 필터링
+      if (v.startsWith("L") || v.startsWith("★") || v.startsWith("원장님") || 
+          v.startsWith("**") || v.startsWith("특이사항") || v.startsWith("이름") || 
+          v.startsWith("내원경로") || v.startsWith("~") || v.includes("전화번호")) return null;
+
+      // 2. 기본 약어 치환
+      v = v.replace(/스보/g, "스킨보톡스")
            .replace(/브제/g, "브라질리언 제모")
-           .replace(/얼전/g, "얼굴전체")
-           .replace(/풀페이스/g, "얼굴전체")
-           .replace(/풀페/g, "얼굴전체")
+           .replace(/얼전|풀페이스|풀페/g, "얼굴전체")
            .replace(/겨제/g, "겨드랑이 제모")
-           .replace(/잔금/g, "잔액")
-           .replace(/쁘잔/g, "잔액")
            .replace(/ta/gi, "염증주사")
-           .replace(/\*?마크뷰/g, "")
            .replace(/구득권/g, "구독권")
            .replace(/셀바이오/g, "셀바이브")
            .replace(/\bs[\.,]?\s*v\b/gi, "서비스");
 
-      // '하이' 뒤에 '쿡스'가 붙지 않은 경우에만 치환
       v = v.replace(/비에녹스|비에|코어/g, "국산 고순도")
            .replace(/하이(?!쿡스)|리즈|메디/g, "국산일반");
 
-         // 3. 숫자 + 단위 처리 (금액 오인 방지)
-      // 숫자 뒤에 샷, cc, u, unit, 단 등이 붙으면 '원'을 붙이지 않음
-      // (?![샷cCuU단]) : 부정형 후방 탐색
-      v = v.replace(/(\d{1,3}(?:\.\d{3})+|\d{4,12})(?![샷cCuU단]|unit|분)/g, (match) => {
-        let numStr = match.replace(/\./g, "");
-        let num = parseInt(numStr, 10);
-        if (!isNaN(num) && num >= 1000) {
-          return num.toLocaleString() + "원";
-        }
-        return match;
+      // 3. 회원권 패턴 (VIP 숫자 뒤에 '원' 붙지 않도록 미리 보호)
+      v = v.replace(/(VIP|vip|쁘(?:띠)?)\s?(\d+)\s?(?:전환)?\s?\(\s?(\d+)\s?(?:결제)?\s+(\d+)\s?(?:적립)?\s?\)/gi, (match, p1, p2, p3, p4) => {
+        const prefix = p1.toUpperCase().includes('VIP') ? 'VIP' : '쁘띠회원권';
+        return `PROTECTED_${prefix}${p2}전환(${p3}만원 결제, ${p4}만원적립)`;
       });
-      // 쁘/쁘띠 회원권 변환 로직
-v = v.replace(/(VIP|vip|쁘(?:띠)?)\s?(\d+)\s?\+\s?(\d+)(?:\([^)]*\))?/g, (match, p1, p2, p3) => {
-  // p1이 쁘/쁘띠면 '쁘띠회원권', VIP/vip면 그대로 'VIP' 사용
-  const prefix = p1.includes('쁘') ? '쁘띠회원권' : 'VIP';
-  return `${prefix}${p2}만원+${p3}만원 적립`;
-});
 
-
-// 4. [수정] 금액 처리 (샷/줄 등 단위가 없는 숫자만 '원' 추가)
-// 부정형 전방 탐색(?!)을 사용하여 숫자 뒤에 특정 단위가 없을 때만 '원'을 붙입니다.
-v = v.replace(/(\d{1,3}(?:[.,]\d{3})+|\d{4,12})(?![샷줄cCuU단unit분회])/g, (match) => {
-  let numStr = match.replace(/[.,]/g, "");
-  let num = parseInt(numStr, 10);
-
-  
-   // '잔', '잔여', '잔액', '잔금' 뒤에 콜론(:)이나 공백이 붙은 경우를 모두 '잔액 '으로 통일
-v = v.replace(/(?:잔액|잔여|잔금|잔)(?:\s|:|-)*(\d{1,3}(?:[.,]\d{3})+|\d{1,12})/g, (match, p1) => {
-  // p1은 숫자 부분만 캡처함
+      // 4. 잔액 패턴 보호
+     v = v.replace(/(?:잔액|잔여|잔금|잔|쁘잔)(?:\s|:|[-)>])+(\d{1,3}(?:[.,]\d{3})+|\d+)/g, (match, p1) => {
   let numStr = p1.replace(/[.,]/g, "");
   let num = parseInt(numStr, 10);
-
-  if (!isNaN(num)) {
-    return `잔액 ${num.toLocaleString()}원`;
-  }
-  return match;
+  return !isNaN(num) ? `PROTECTED_잔액 ${num.toLocaleString()}원` : match;
 });
 
-      // 2. 부위 + btx/f 패턴 변환
+      // 5. 쁘띠/필러 약어 변환
       v = v.replace(kwPattern, (match, kw) => kw + "보톡스")
            .replace(fillerPattern, (match, kw) => kw + "필러");
 
-// 4. 금액 처리 (마침표, 쉼표, 생숫자 모두 대응)
-v = v.replace(/(\d{1,3}(?:[.,]\d{3})+|\d{3,12})/g, (match) => {
-  let numStr = match.replace(/[.,]/g, "");
-  let num = parseInt(numStr, 10);
-  if (!isNaN(num) && num >= 1) return num.toLocaleString() + "원";
-  return match;
-});
+      // 6. 금액 및 숫자 처리
+      // 마침표(.)나 쉼표(,)가 포함된 숫자열 전체를 찾아 처리
+      v = v.replace(/(\d{1,3}(?:[.,]\d{3})+|\d{3,12})/g, (match, p1, offset, string) => {
+        
+        // 주변 텍스트 확인 (이미 보호되었거나 단위가 붙었는지)
+        const before = string.substring(0, offset);
+        const after = string.substring(offset + match.length);
+        
+        if (before.includes("PROTECTED_")) return match;
 
-      // 중복 '원' 정리
-      v = v.replace(/(\d{1,3}(?:,\d{3})*|\d+)원+/g, (match, p1) => {
-        let n = parseInt(p1.replace(/,/g, ""), 10);
-        return n.toLocaleString() + "원";
+        // 뒤에 단위가 오면 그대로 반환 (샷, cc, 줄 등)
+        if (/^\s*(?:샷|cc|u|unit|유닛|회|개|팩|분|줄|세|만|결제|적립|전환)/i.test(after)) {
+            return match;
+        }
+
+        // 숫자 정제 (마침표, 쉼표 제거 후 재포맷)
+        let numStr = match.replace(/[.,]/g, "");
+        let num = parseInt(numStr, 10);
+        if (isNaN(num)) return match;
+        
+        let formatted = num.toLocaleString();
+
+        // 뒤에 이미 '원'이 있는지 확인
+        if (/^\s*원/.test(after)) {
+            return formatted;
+        }
+
+        return formatted + "원";
       });
 
-      v = v.replace(/원+/g, "원"); 
-      return v.replace(/\s+/g, " ").trim();
+      // 보호 태그 제거 및 중복 '원' 정리
+      return v.replace(/PROTECTED_/g, "")
+              .replace(/원원/g, "원")
+              .replace(/\s+/g, " ")
+              .trim();
     }
 
     function process() {
-      if (isEditingOutput) return;
-
       const raw = elInput.value;
       if (!raw.trim()) {
         elOutput.value = "";
         elStatus.textContent = "대기중";
         return;
       }
-
       const lines = raw.split(/\r?\n/);
-      const results = [];
-
-      for (let line of lines) {
-        const cleaned = transformText(line);
-        if (cleaned) {
-          results.push(cleaned);
-        }
-      }
-
+      const results = lines.map(transformText).filter(x => x !== null && x.trim() !== "");
       elOutput.value = results.join('\n');
       elStatus.textContent = "완료";
-    }
-
-    function showToast(msg) {
-      elToast.textContent = msg;
-      elToast.classList.add('show');
-      setTimeout(() => elToast.classList.remove('show'), 2000);
     }
 
     elBtnCopy.addEventListener('click', () => {
       if (!elOutput.value) return;
       elOutput.select();
       document.execCommand('copy');
-      showToast("복사되었습니다.");
+      elToast.classList.add('show');
+      setTimeout(() => elToast.classList.remove('show'), 2000);
     });
 
     elBtnClear.addEventListener('click', () => {
-      isEditingOutput = false;
       elInput.value = "";
       process();
-      elInput.focus();
     });
 
-    elInput.addEventListener('input', () => {
-      isEditingOutput = false; 
-      process();
-    });
-
-    elOutput.addEventListener('input', () => {
-      isEditingOutput = true; 
-      elStatus.textContent = "수정중";
-    });
-
-    process();
+    elInput.addEventListener('input', process);
   </script>
 </body>
 </html>
-
-
