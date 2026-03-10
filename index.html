@@ -303,15 +303,13 @@ v = v.replace(/(VIP|vip|쁘(?:띠)?)\s?(\d+)\s?\+\s?(\d+)(?:\([^)]*\))?/g, (matc
       v = v.replace(kwPattern, (match, kw) => kw + "보톡스")
            .replace(fillerPattern, (match, kw) => kw + "필러");
 
-      // 3. 금액 처리
-      v = v.replace(/(\d{1,3}(?:\.\d{3})+|\d{4,12})/g, (match) => {
-        let numStr = match.replace(/\./g, "");
-        let num = parseInt(numStr, 10);
-        if (!isNaN(num) && (match.includes('.') || num >= 1000)) {
-          return num.toLocaleString() + "원";
-        }
-        return match;
-      });
+// 4. 금액 처리 (마침표, 쉼표, 생숫자 모두 대응)
+v = v.replace(/(\d{1,3}(?:[.,]\d{3})+|\d{4,12})/g, (match) => {
+  let numStr = match.replace(/[.,]/g, "");
+  let num = parseInt(numStr, 10);
+  if (!isNaN(num) && num >= 1000) return num.toLocaleString() + "원";
+  return match;
+});
 
       // 중복 '원' 정리
       v = v.replace(/(\d{1,3}(?:,\d{3})*|\d+)원+/g, (match, p1) => {
@@ -381,4 +379,5 @@ v = v.replace(/(VIP|vip|쁘(?:띠)?)\s?(\d+)\s?\+\s?(\d+)(?:\([^)]*\))?/g, (matc
   </script>
 </body>
 </html>
+
 
