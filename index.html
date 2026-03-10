@@ -15,7 +15,6 @@
       --primary: #f06292; /* 메인 핑크 */
       --primary-dark: #d81b60; 
       --primary-light: #fce4ec; /* 배경 핑크 */
-      /* 세련된 다크 그레이 폰트 컬러 */
       --text: #373d49; 
       --text-light: #6b7280;
       --card-bg: #ffffff;
@@ -70,7 +69,7 @@
 
     .toolbar {
       display: flex;
-      justify-content: flex-end; /* 오른쪽 정렬 */
+      justify-content: flex-end;
       align-items: center;
       gap: 12px;
       margin-bottom: 24px;
@@ -230,7 +229,6 @@
       <section class="panel">
         <div class="panel-header">
           <span class="panel-title">정리된 결과</span>
-          <!-- 건수 표시 배지 삭제됨 -->
         </div>
         <textarea id="output" placeholder="정리된 결과가 여기에 표시됩니다."></textarea>
         <div class="panel-footer" id="msgBox">
@@ -250,7 +248,6 @@
     const elInput = document.getElementById('input');
     const elOutput = document.getElementById('output');
     const elStatus = document.getElementById('inputStatus');
-    const elMsg = document.getElementById('msgBox');
     const elBtnCopy = document.getElementById('btnCopy');
     const elBtnClear = document.getElementById('btnClear');
     const elToast = document.getElementById('toast');
@@ -258,8 +255,8 @@
     let isEditingOutput = false;
 
     // 보톡스 및 필러 패턴 정의
-    const kwPattern = /(승모근|이마|눈가|미간|자갈턱|종아리|허벅지|눈밑|입꼬리|스킨|사각턱|측두근|턱|광대|보상근|인중|침샘|주름)\s*(?:btx|b)/gi;
-    const fillerPattern = /(팔자|옆볼|눈밑고랑|눈밑|앞볼|미간|이마|관자|관자놀이|입술|애교|입꼬리|코|콧대|턱|턱끝|마리오넷|주름|볼)\s*f/gi;
+    const kwPattern = /(승모근|이마|눈가|미간|자갈턱|종아리|허벅지|눈밑|입꼬리|스킨|사각턱|측두근|턱|광대|보상근|인중|침샘|주름)\s*(?:btx|b)\b/gi;
+    const fillerPattern = /(팔자|옆볼|눈밑고랑|눈밑|앞볼|미간|이마|관자|관자놀이|입술|애교|입꼬리|코|콧대|턱|턱끝|마리오넷|주름|볼)\s*f\b/gi;
 
     /**
      * 텍스트 변환 로직
@@ -285,42 +282,39 @@
            .replace(/잔금/g, "잔액")
            .replace(/쁘잔/g, "잔액")
            .replace(/ta/gi, "염증주사")
-           .replace(/\*?마크뷰/g, "") // *마크뷰 또는 마크뷰 삭제
+           .replace(/\*?마크뷰/g, "")
            .replace(/구득권/g, "구독권")
            .replace(/셀바이오/g, "셀바이브")
            .replace(/\bs[\.,]?\s*v\b/gi, "서비스");
 
-      
       // '하이' 뒤에 '쿡스'가 붙지 않은 경우에만 치환
-v = v.replace(/비에녹스|비에|코어/g, "국산 고순도")
-     .replace(/하이(?!쿡스)|리즈|메디/g, "국산일반");
+      v = v.replace(/비에녹스|비에|코어/g, "국산 고순도")
+           .replace(/하이(?!쿡스)|리즈|메디/g, "국산일반");
       
-     // 뒤에 공백(\s)이나 문자열 끝($)이 올 때만 '잔액'으로 변경
-v = v.replace(/(잔액|잔여|잔)(?=\s|$)/g, "잔액");
+      // 뒤에 공백이나 끝일 때만 '잔액'으로 변경
+      v = v.replace(/(잔액|잔여|잔)(?=\s|$)/g, "잔액");
 
       // 2. 부위 + btx/f 패턴 변환
       v = v.replace(kwPattern, (match, kw) => kw + "보톡스")
            .replace(fillerPattern, (match, kw) => kw + "필러");
 
-      // 3. 금액 처리 고도화 (백만 단위 이상 대응)
-      // 숫자 사이의 마침표(.)를 모두 제거하고 4자리 이상의 숫자 뭉치를 찾거나, 이미 원이 붙은 경우 처리
+      // 3. 금액 처리
       v = v.replace(/(\d{1,3}(?:\.\d{3})+|\d{4,12})/g, (match) => {
-        // 소수점이 2개 이상이거나 숫자가 4자리 이상일 때 금액으로 판단
         let numStr = match.replace(/\./g, "");
         let num = parseInt(numStr, 10);
-        
         if (!isNaN(num) && (match.includes('.') || num >= 1000)) {
           return num.toLocaleString() + "원";
         }
         return match;
       });
 
-      // 이미 "원"이 있는 경우 중복 방지 및 쉼표 재정렬
-      v = v.replace(/(\d{1,3}(?:,\d{3})*|\d+)원/g, (match, p1) => {
+      // 중복 '원' 정리
+      v = v.replace(/(\d{1,3}(?:,\d{3})*|\d+)원+/g, (match, p1) => {
         let n = parseInt(p1.replace(/,/g, ""), 10);
         return n.toLocaleString() + "원";
       });
 
+      v = v.replace(/원+/g, "원"); 
       return v.replace(/\s+/g, " ").trim();
     }
 
@@ -381,7 +375,4 @@ v = v.replace(/(잔액|잔여|잔)(?=\s|$)/g, "잔액");
     process();
   </script>
 </body>
-
 </html>
-
-
