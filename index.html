@@ -297,7 +297,7 @@ v = v.replace(/(VIP|vip|쁘(?:띠)?)\s?(\d+)\s?\+\s?(\d+)(?:\([^)]*\))?/g, (matc
   return `${prefix}${p2}만원+${p3}만원 적립`;
 });
    // '잔', '잔여', '잔액', '잔금' 뒤에 콜론(:)이나 공백이 붙은 경우를 모두 '잔액 '으로 통일
-v = v.replace(/(?:잔액|잔여|잔금|잔)(?:\s|:|-)*(\d{1,3}(?:[.,]\d{3})+|\d{4,12})/g, (match, p1) => {
+v = v.replace(/(?:잔액|잔여|잔금|잔)(?:\s|:|-)*(\d{1,3}(?:[.,]\d{3})+|\d{3,12})/g, (match, p1) => {
   // p1은 숫자 부분만 캡처함
   let numStr = p1.replace(/[.,]/g, "");
   let num = parseInt(numStr, 10);
@@ -316,7 +316,7 @@ v = v.replace(/(?:잔액|잔여|잔금|잔)(?:\s|:|-)*(\d{1,3}(?:[.,]\d{3})+|\d{
 v = v.replace(/(\d{1,3}(?:[.,]\d{3})+|\d{4,12})/g, (match) => {
   let numStr = match.replace(/[.,]/g, "");
   let num = parseInt(numStr, 10);
-  if (!isNaN(num) && num >= 1000) return num.toLocaleString() + "원";
+  if (!isNaN(num) && num >= 10) return num.toLocaleString() + "원";
   return match;
 });
 
@@ -388,6 +388,7 @@ v = v.replace(/(\d{1,3}(?:[.,]\d{3})+|\d{4,12})/g, (match) => {
   </script>
 </body>
 </html>
+
 
 
 
