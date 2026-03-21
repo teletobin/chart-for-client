@@ -191,6 +191,8 @@
     }
 
     #output { background: #fff; }
+    /* 편집 가능함을 시각적으로 알리기 위해 포커스 시 미세한 배경색 변화 */
+    #output:focus { background-color: #fff9fb; }
 
     .modal-overlay {
       position: fixed;
@@ -208,7 +210,7 @@
     .modal-content {
       background: white;
       width: 100%;
-      max-width: 550px;
+      max-width: 600px;
       border-radius: 20px;
       padding: 30px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.2);
@@ -284,7 +286,7 @@
   <div class="container">
     <div class="toolbar">
       <button id="btnOpenInfo" class="btn btn-info">
-        <span> 차트 정리 안내
+        <span>차트 정리 안내
       </button>
       <div class="actions">
         <button id="btnClear" class="btn btn-clear">CLEAR</button>
@@ -303,13 +305,13 @@
 
       <section class="panel">
         <div class="panel-header">
-          <span class="panel-title">정리된 결과</span>
+          <span class="panel-title">정리된 차트(편집가능)</span>
           <label class="filter-opt">
             <input type="checkbox" id="checkFilterN" checked>
-            ㄴ시작 줄 제외 (금액 정보 포함 시 유지)
+            ㄴ시작 줄 제외 (중요 정보 포함 시 유지)
           </label>
         </div>
-        <textarea id="output" placeholder="정리된 결과가 표시됩니다." readonly></textarea>
+        <textarea id="output" placeholder="정리된 결과가 표시되며, 편집 가능합니다."></textarea>
       </section>
     </div>
   </div>
@@ -317,16 +319,15 @@
   <!-- 안내 모달 팝업 -->
   <div id="infoModal" class="modal-overlay">
     <div class="modal-content">
-      <h2>정리 규칙 안내</h2>
+      <h2>차트정리 안내</h2>
       <ul class="modal-list">
-        <li><strong>회원권 정보:</strong> VIP/쁘띠 결제금액과 적립금엑을 자동 정리하며 실장명과 날짜를 삭제합니다.</li>
+        <li><strong>회원권 정보:</strong> VIP/쁘띠 결제금액과 적립금액을 자동 정리하며 실장명과 날짜를 삭제합니다.</li>
         <li><strong>금액 포맷:</strong> <code>700000</code> 또는 <code>700.000</code> 을 자동으로 <code>700,000원</code> 형태로 변환합니다.</li>
         <li><strong>잔액 정보:</strong> 잔, 잔여, 잔금 등의 텍스트는 "잔액 : XXX원" 으로 변환합니다.</li>
         <li><strong>제품명 통일:</strong> 비에녹스/코어는(국산 고순도)로, 하이/리즈/메디는 (국산일반)으로 정리합니다.</li>
         <li><strong>약어 치환:</strong> 스보 → 스킨보톡스, 얼전 → 얼굴전체, 겨제 → 겨드랑이 제모 등 약어를 자동 변환합니다.</li>
         <li><strong>자동 완성:</strong> "보톡스" 표기가 없어도 뒤에 제품명/금액이 오면 자동으로 보톡스를 붙여줍니다.</li>
-        <li><strong>스마트 필터링:</strong> 'ㄴ' 시작 줄이라도 하이쿡스, 팁, 1-1, 금액이 포함된 경우 중요 정보로 판단하여 유지합니다.</li>
-        <li><strong>불필요 내용 삭제:</strong> <code>*마크뷰+</code>, <code>1-1</code> 등 불필요한 정보를 제거합니다.</li>
+        <li><strong>스마트 필터링:</strong> 'ㄴ' 시작 줄이라도 하이쿡스, 팁, 1-1, 금액 등이 포함된 경우 유지합니다.</li>
       </ul>
       <button id="btnCloseInfo" class="btn btn-close">닫기</button>
     </div>
@@ -365,7 +366,7 @@
 
       // ㄴ 시작 줄 제외 로직 확장
       if (elCheckFilterN.checked && v.startsWith("ㄴ")) {
-        const importantKeywords = ["하이쿡스", "팁", "1-1"];
+        const importantKeywords = ["하이쿡스", "팁", "1-1", "포함"];
         const hasImportantWord = importantKeywords.some(keyword => v.includes(keyword));
         
         // 숫자가 3자리 이상 연속으로 나오면 금액으로 판단하여 유지
@@ -458,14 +459,20 @@
     elBtnCopy.addEventListener('click', () => {
       if (!elOutput.value) return;
       elOutput.select();
-      document.execCommand('copy');
+      // navigator.clipboard.writeText를 iFrame에서 사용하기 위한 폴백 처리 포함
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Copy failed', err);
+      }
       elToast.classList.add('show');
       setTimeout(() => elToast.classList.remove('show'), 2000);
     });
 
     elBtnClear.addEventListener('click', () => {
       elInput.value = "";
-      process();
+      elOutput.value = "";
+      elStatus.textContent = "대기중";
     });
 
     elInput.addEventListener('input', process);
