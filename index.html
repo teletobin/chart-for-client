@@ -191,7 +191,6 @@
     }
 
     #output { background: #fff; }
-    /* 편집 가능함을 시각적으로 알리기 위해 포커스 시 미세한 배경색 변화 */
     #output:focus { background-color: #fff9fb; }
 
     .modal-overlay {
@@ -210,7 +209,7 @@
     .modal-content {
       background: white;
       width: 100%;
-      max-width: 600px;
+      max-width: 650px;
       border-radius: 20px;
       padding: 30px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.2);
@@ -316,17 +315,17 @@
     </div>
   </div>
 
-  <!-- 안내 모달 팝업 -->
   <div id="infoModal" class="modal-overlay">
     <div class="modal-content">
       <h2>차트정리 안내</h2>
       <ul class="modal-list">
+        <li><strong>편집 가능:</strong> 오른쪽 결과창의 텍스트를 직접 수정하거나 추가할 수 있습니다.</li>
         <li><strong>회원권 정보:</strong> VIP/쁘띠 결제금액과 적립금액을 자동 정리하며 실장명과 날짜를 삭제합니다.</li>
         <li><strong>금액 포맷:</strong> <code>700000</code> 또는 <code>700.000</code> 을 자동으로 <code>700,000원</code> 형태로 변환합니다.</li>
         <li><strong>잔액 정보:</strong> 잔, 잔여, 잔금 등의 텍스트는 "잔액 : XXX원" 으로 변환합니다.</li>
         <li><strong>제품명 통일:</strong> 비에녹스/코어는(국산 고순도)로, 하이/리즈/메디는 (국산일반)으로 정리합니다.</li>
         <li><strong>약어 치환:</strong> 스보 → 스킨보톡스, 얼전 → 얼굴전체, 겨제 → 겨드랑이 제모 등 약어를 자동 변환합니다.</li>
-        <li><strong>자동 완성:</strong> "보톡스" 표기가 없어도 뒤에 제품명/금액이 오면 자동으로 보톡스를 붙여줍니다.</li>
+        <li><strong>자동 완성:</strong> 사각턱, 승모근 등 부위명 뒤에 보톡스 제품명 또는 금액이 오면 생략된 경우 "보톡스"를 붙여줍니다.</li>
         <li><strong>스마트 필터링:</strong> 'ㄴ' 시작 줄이라도 하이쿡스, 팁, 1-1, 금액 등이 포함된 경우 유지합니다.</li>
       </ul>
       <button id="btnCloseInfo" class="btn btn-close">닫기</button>
@@ -348,14 +347,17 @@
     const elToast = document.getElementById('toast');
     const elCheckFilterN = document.getElementById('checkFilterN');
     
-    // 모달 관련
     const elBtnOpenInfo = document.getElementById('btnOpenInfo');
     const elBtnCloseInfo = document.getElementById('btnCloseInfo');
     const elInfoModal = document.getElementById('infoModal');
 
-    // 보톡스 관련 키워드 패턴
-    const btxKeywords = "승모근|이마|눈가|미간|자갈턱|종아리|허벅지|눈밑|입꼬리|스킨|사각턱|파워사각턱|측두근|파워측두근|턱|광대|보상근|인중|침샘|주름|파워이중턱 침샘";
-    const kwPattern = new RegExp(`(${btxKeywords})\\s*(?:btx|b)\\b`, "gi");
+    // '스킨'을 제외한 부위명 목록 (스킨은 스킨보톡스 등 명시적 표현시에만 처리하도록 변경)
+    const btxKeywords = "승모근|이마|눈가|미간|자갈턱|종아리|허벅지|눈밑|입꼬리|사각턱|파워사각턱|측두근|파워측두근|턱|광대|보상근|인중|침샘|주름|파워이중턱 침샘";
+    
+    // 명시적인 btx/b 패턴 (이때는 스킨도 포함 가능하도록 별도 처리)
+    const kwPattern = new RegExp(`(${btxKeywords}|스킨)\\s*(?:btx|b)\\b`, "gi");
+    
+    // 자동 완성: 뒤에 제품명이나 숫자가 올 때만 보톡스 삽입 (스킨은 시술명 오인 방지를 위해 제외)
     const autoBtxPattern = new RegExp(`(${btxKeywords})(?!\\s*보톡스)(?=\\s*(?:하이|비에|코어|리즈|메디|디스포트|제오민|엘러간|\\d))`, "gi");
 
     const fillerPattern = /(팔자|옆볼|눈밑고랑|눈밑|앞볼|미간|이마|관자|관자놀이|입술|애교|입꼬리|코|콧대|턱|턱끝|마리오넷|주름|볼)\s*f\b/gi;
@@ -364,14 +366,11 @@
       let v = line.trim();
       if (!v) return null;
 
-      // ㄴ 시작 줄 제외 로직 확장
+      // ㄴ 시작 줄 제외 로직
       if (elCheckFilterN.checked && v.startsWith("ㄴ")) {
         const importantKeywords = ["하이쿡스", "팁", "1-1", "포함"];
         const hasImportantWord = importantKeywords.some(keyword => v.includes(keyword));
-        
-        // 숫자가 3자리 이상 연속으로 나오면 금액으로 판단하여 유지
         const hasPriceInfo = /\d{3,}/.test(v);
-        
         if (!hasImportantWord && !hasPriceInfo) return null;
       }
 
@@ -382,7 +381,7 @@
       const skipPrefixes = ["★", "원장님", "**", "특이사항", "이름", "내원경로", "~"];
       if (skipPrefixes.some(p => v.startsWith(p)) || v.includes("전화번호")) return null;
 
-      // 약어 치환
+      // 약어 치환 (스보 -> 스킨보톡스로 명확히 치환하여 보호)
       v = v.replace(/스보/g, "스킨보톡스")
            .replace(/브제/g, "브라질리언 제모")
            .replace(/얼전|풀페이스|풀페/g, "얼굴전체")
@@ -392,7 +391,7 @@
            .replace(/셀바이오/g, "셀바이브")
            .replace(/\bs[\.,]?\s*v\b/gi, "서비스");
 
-      // 보톡스 자동 완성
+      // 보톡스 자동 완성 (부위명 뒤)
       v = v.replace(autoBtxPattern, "$1보톡스");
 
       // 제품명 통일
@@ -417,7 +416,7 @@
         return !isNaN(num) ? `PROTECTED_잔액 ${num.toLocaleString()}원` : match;
       });
 
-      // 기존 보톡스/필러 패턴
+      // 명시적 btx/b 패턴 및 필러 처리
       v = v.replace(kwPattern, (match, kw) => kw + "보톡스")
            .replace(fillerPattern, (match, kw) => kw + "필러");
 
@@ -459,7 +458,6 @@
     elBtnCopy.addEventListener('click', () => {
       if (!elOutput.value) return;
       elOutput.select();
-      // navigator.clipboard.writeText를 iFrame에서 사용하기 위한 폴백 처리 포함
       try {
         document.execCommand('copy');
       } catch (err) {
