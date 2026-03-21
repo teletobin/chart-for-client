@@ -69,7 +69,7 @@
 
     .toolbar {
       display: flex;
-      justify-content: space-between; /* 양쪽 끝으로 배치 */
+      justify-content: space-between; 
       align-items: center;
       gap: 10px;
       margin-bottom: 12px;
@@ -90,7 +90,6 @@
       gap: 6px;
     }
 
-    /* 정리되는 내용 버튼 */
     .btn-info {
       background: #f3f4f6;
       color: var(--text-light) !important;
@@ -193,7 +192,6 @@
 
     #output { background: #fff; }
 
-    /* 모달 팝업 스타일 */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -286,7 +284,7 @@
   <div class="container">
     <div class="toolbar">
       <button id="btnOpenInfo" class="btn btn-info">
-        <span> 차트 정리 안내
+        <span>💡</span> 차트 정리 안내
       </button>
       <div class="actions">
         <button id="btnClear" class="btn btn-clear">CLEAR</button>
@@ -308,7 +306,7 @@
           <span class="panel-title">정리된 결과</span>
           <label class="filter-opt">
             <input type="checkbox" id="checkFilterN" checked>
-            ㄴ시작 줄 제외
+            ㄴ시작 줄 제외 (중요 정보 포함 시 유지)
           </label>
         </div>
         <textarea id="output" placeholder="정리된 결과가 표시됩니다." readonly></textarea>
@@ -325,9 +323,10 @@
         <li><strong>금액 포맷:</strong> <code>700000</code> 또는 <code>700.000</code> 을 자동으로 <code>700,000원</code> 형태로 변환합니다.</li>
         <li><strong>잔액 정보:</strong> 잔, 잔여, 잔금 등의 텍스트는 "잔액 : XXX원" 으로 변환합니다.</li>
         <li><strong>제품명 통일:</strong> 비에녹스/코어는(국산 고순도)로, 하이/리즈/메디는 (국산일반)으로 정리합니다.</li>
-        <li><strong>약어 치환:</strong> 스보 → 스킨보톡스, 얼전 → 얼굴전체, 겨제 → 겨드랑이 제모, b → 보톡스 등 약어를 자동 변환합니다.</li>
+        <li><strong>약어 치환:</strong> 스보 → 스킨보톡스, 얼전 → 얼굴전체, 겨제 → 겨드랑이 제모 등 약어를 자동 변환합니다.</li>
         <li><strong>자동 완성:</strong> 보상근, 침샘, 사각턱 등 뒤에 보톡스 표기가 없어도 뒤에 제품명/금액이 오면 자동으로 보톡스를 붙여줍니다.</li>
-        <li><strong>불필요 내용 삭제:</strong> <code>*마크뷰+</code>, <code>1-1</code> 등 불필요한 정보를 제거합니다.</li>
+        <li><strong>스마트 필터링:</strong> 'ㄴ' 시작 줄이라도 <strong>하이쿡스, 팁, 포함, 1-1, 금액(숫자)</strong>이 포함된 경우 중요 정보로 판단하여 유지합니다.</li>
+        <li><strong>불필요 내용 삭제:</strong> <code>*마크뷰+</code>, <code>1-1</code>(최종 정리 단계) 등 불필요한 정보를 제거합니다.</li>
       </ul>
       <button id="btnCloseInfo" class="btn btn-close">닫기</button>
     </div>
@@ -353,14 +352,9 @@
     const elBtnCloseInfo = document.getElementById('btnCloseInfo');
     const elInfoModal = document.getElementById('infoModal');
 
-    // 보톡스 관련 키워드 패턴 (부위명)
+    // 보톡스 관련 키워드 패턴
     const btxKeywords = "승모근|이마|눈가|미간|자갈턱|종아리|허벅지|눈밑|입꼬리|스킨|사각턱|파워사각턱|측두근|파워측두근|턱|광대|보상근|인중|침샘|주름|파워이중턱 침샘";
-    
-    // 1. 기존 '키워드 + btx/b' 패턴
     const kwPattern = new RegExp(`(${btxKeywords})\\s*(?:btx|b)\\b`, "gi");
-    
-    // 2. 새로운 '키워드 단독' 후 제품명/금액이 오는 패턴을 잡기 위한 사전 처리용
-    // 뒤에 제품명(하이,비에 등)이나 숫자(금액)가 올 때 '보톡스'를 강제 삽입
     const autoBtxPattern = new RegExp(`(${btxKeywords})(?!\\s*보톡스)(?=\\s*(?:하이|비에|코어|리즈|메디|디스포트|제오민|엘러간|\\d))`, "gi");
 
     const fillerPattern = /(팔자|옆볼|눈밑고랑|눈밑|앞볼|미간|이마|관자|관자놀이|입술|애교|입꼬리|코|콧대|턱|턱끝|마리오넷|주름|볼)\s*f\b/gi;
@@ -369,13 +363,22 @@
       let v = line.trim();
       if (!v) return null;
 
-      if (elCheckFilterN.checked && v.startsWith("ㄴ")) return null;
+      // ㄴ 시작 줄 제외 로직 확장
+      if (elCheckFilterN.checked && v.startsWith("ㄴ")) {
+        const importantKeywords = ["하이쿡스", "팁", "1-1"];
+        const hasImportantWord = importantKeywords.some(keyword => v.includes(keyword));
+        
+        // 숫자가 3자리 이상 연속으로 나오면 금액으로 판단하여 유지
+        const hasPriceInfo = /\d{3,}/.test(v);
+        
+        if (!hasImportantWord && !hasPriceInfo) return null;
+      }
 
       // 1-1 및 마크뷰 제거
       v = v.replace(/\b1-1\b/g, " ");
       v = v.replace(/\*마크뷰\+|\*마크뷰|마크뷰완료|마크뷰\+|마크뷰|\*마크\+|\*마\+|\*마크/g, "");
       
-      const skipPrefixes = ["L", "★", "원장님", "**", "특이사항", "이름", "내원경로", "~"];
+      const skipPrefixes = ["★", "원장님", "**", "특이사항", "이름", "내원경로", "~"];
       if (skipPrefixes.some(p => v.startsWith(p)) || v.includes("전화번호")) return null;
 
       // 약어 치환
@@ -388,7 +391,7 @@
            .replace(/셀바이오/g, "셀바이브")
            .replace(/\bs[\.,]?\s*v\b/gi, "서비스");
 
-      // 보톡스 자동 완성 로직 (부위명만 있고 뒤에 제품/금액 올 때)
+      // 보톡스 자동 완성
       v = v.replace(autoBtxPattern, "$1보톡스");
 
       // 제품명 통일
@@ -413,7 +416,7 @@
         return !isNaN(num) ? `PROTECTED_잔액 ${num.toLocaleString()}원` : match;
       });
 
-      // 기존 보톡스/필러 패턴 처리
+      // 기존 보톡스/필러 패턴
       v = v.replace(kwPattern, (match, kw) => kw + "보톡스")
            .replace(fillerPattern, (match, kw) => kw + "필러");
 
@@ -422,7 +425,6 @@
         const before = string.substring(0, offset);
         const after = string.substring(offset + match.length);
         if (before.includes("PROTECTED_")) return match;
-        // 샷, cc 등 단위가 붙는 숫자는 제외
         if (/^\s*(?:샷|cc|u|unit|유닛|회|kj|J|분|줄|KJ|만|결제|적립|전환)/i.test(after)) return match;
 
         let numStr = match.replace(/[.,]/g, "");
@@ -449,7 +451,6 @@
       elStatus.textContent = "완료";
     }
 
-    // 모달 핸들러
     elBtnOpenInfo.onclick = () => elInfoModal.classList.add('show');
     elBtnCloseInfo.onclick = () => elInfoModal.classList.remove('show');
     elInfoModal.onclick = (e) => { if(e.target === elInfoModal) elInfoModal.classList.remove('show'); };
@@ -460,10 +461,6 @@
       document.execCommand('copy');
       elToast.classList.add('show');
       setTimeout(() => elToast.classList.remove('show'), 2000);
-    });
-
-    elBtnCopy.addEventListener('touchstart', (e) => {
-       // 터치 대응
     });
 
     elBtnClear.addEventListener('click', () => {
