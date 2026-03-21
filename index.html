@@ -20,7 +20,7 @@
       --card-bg: #ffffff;
       --border: rgba(240, 98, 146, 0.2);
       --shadow: 0 4px 20px rgba(0, 0, 0, 0.05); 
-      --radius: 20px;
+      --radius: 16px;
     }
 
     * { 
@@ -41,19 +41,19 @@
     }
 
     header {
-      padding: 15px 20px;
+      padding: 12px 20px;
       text-align: center;
       background: var(--primary-light); 
       border-bottom: 2px solid rgba(240, 98, 146, 0.1);
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 4px 15px rgba(240, 98, 146, 0.05);
+      box-shadow: 0 2px 10px rgba(240, 98, 146, 0.05);
     }
 
     header h1 {
       margin: 0;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
       color: var(--text);
       letter-spacing: -0.7px;
@@ -62,40 +62,52 @@
     .container {
       max-width: 1000px;
       margin: 0 auto;
-      padding: 30px 20px;
+      padding: 15px 20px;
       width: 100%;
       flex: 1;
     }
 
     .toolbar {
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between; /* 양쪽 끝으로 배치 */
       align-items: center;
-      gap: 12px;
-      margin-bottom: 24px;
+      gap: 10px;
+      margin-bottom: 12px;
     }
 
-    .actions { display: flex; gap: 10px; }
+    .actions { display: flex; gap: 8px; }
 
     .btn {
       border: none;
-      padding: 12px 24px;
-      border-radius: 14px;
+      padding: 10px 18px;
+      border-radius: 12px;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s ease;
-      font-size: 14px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* 정리되는 내용 버튼 */
+    .btn-info {
+      background: #f3f4f6;
+      color: var(--text-light) !important;
+      border: 1px solid #e5e7eb;
+    }
+    .btn-info:hover {
+      background: #e5e7eb;
     }
 
     .btn-copy {
       background: var(--primary);
       color: white !important;
-      box-shadow: 0 4px 15px rgba(240, 98, 146, 0.2);
+      box-shadow: 0 4px 12px rgba(240, 98, 146, 0.15);
     }
     .btn-copy:hover { 
       background: var(--primary-dark);
-      transform: translateY(-2px); 
-      box-shadow: 0 6px 20px rgba(240, 98, 146, 0.25);
+      transform: translateY(-1px); 
     }
 
     .btn-clear {
@@ -108,14 +120,15 @@
     .editor-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 24px;
+      gap: 15px;
       width: 100%;
     }
 
     @media (max-width: 850px) {
-      .editor-grid { grid-template-columns: 1fr; }
-      .toolbar { justify-content: center; }
+      .editor-grid { grid-template-columns: 1fr; gap: 12px; }
+      .toolbar { flex-direction: column; align-items: stretch; margin-bottom: 10px; }
       .actions { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+      .btn-info { justify-content: center; }
     }
 
     .panel {
@@ -126,38 +139,53 @@
       flex-direction: column;
       overflow: hidden;
       box-shadow: var(--shadow);
-      transition: all 0.3s ease;
     }
 
     .panel-header {
-      padding: 16px 20px;
-      background: #fff;
-      border-bottom: 1px solid #f9f9f9;
+      padding: 12px 16px;
+      background: #fafafa;
+      border-bottom: 1px solid #f0f0f0;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
-    .panel-title { font-size: 14px; font-weight: 700; color: var(--text-light); }
+    .panel-title { font-size: 13px; font-weight: 700; color: var(--text-light); }
 
     .status-badge {
-      font-size: 11px;
-      padding: 4px 12px;
-      border-radius: 20px;
+      font-size: 10px;
+      padding: 2px 10px;
+      border-radius: 10px;
       background: var(--primary-light);
       color: var(--primary-dark);
       font-weight: 700;
       border: 1px solid rgba(240, 98, 146, 0.1);
     }
 
+    .filter-opt {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-light);
+      cursor: pointer;
+    }
+    .filter-opt input {
+      width: 14px;
+      height: 14px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
     textarea {
       width: 100%;
-      height: 480px;
-      padding: 20px;
+      height: 500px;
+      padding: 15px;
       border: none;
       resize: none;
       font-size: 14px;
-      line-height: 1.8;
+      line-height: 1.7;
       background: transparent;
       outline: none;
       color: var(--text);
@@ -165,21 +193,88 @@
 
     #output { background: #fff; }
 
+    /* 모달 팝업 스타일 */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal-overlay.show { display: flex; }
+
+    .modal-content {
+      background: white;
+      width: 100%;
+      max-width: 450px;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      position: relative;
+    }
+    .modal-content h2 {
+      margin-top: 0;
+      font-size: 18px;
+      color: var(--primary-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .modal-list {
+      list-style: none;
+      padding: 0;
+      margin: 20px 0;
+    }
+    .modal-list li {
+      margin-bottom: 12px;
+      padding-left: 20px;
+      position: relative;
+      font-size: 14px;
+      color: var(--text);
+    }
+    .modal-list li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+      font-weight: bold;
+    }
+    .modal-list strong { color: var(--primary-dark); }
+    
+    .btn-close {
+      width: 100%;
+      margin-top: 10px;
+      background: var(--text);
+      color: white !important;
+      justify-content: center;
+    }
+
     #toast {
       position: fixed;
-      bottom: 40px;
+      bottom: 30px;
       left: 50%;
       transform: translateX(-50%) translateY(100px);
       background: var(--text);
       color: white;
-      padding: 12px 28px;
-      border-radius: 50px;
+      padding: 10px 24px;
+      border-radius: 12px;
       font-size: 13px;
       font-weight: 500;
       transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       z-index: 1000;
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
+
+    footer {
+      padding: 20px;
+      text-align: center;
+      font-size: 11px;
+      color: #9ca3af;
+    }
   </style>
 </head>
 
@@ -190,9 +285,12 @@
 
   <div class="container">
     <div class="toolbar">
+      <button id="btnOpenInfo" class="btn btn-info">
+        <span> 차트 정리 안내
+      </button>
       <div class="actions">
-        <button id="btnClear" class="btn btn-clear">초기화</button>
-        <button id="btnCopy" class="btn btn-copy">결과 복사</button>
+        <button id="btnClear" class="btn btn-clear">CLEAR</button>
+        <button id="btnCopy" class="btn btn-copy">텍스트 복사</button>
       </div>
     </div>
 
@@ -208,13 +306,37 @@
       <section class="panel">
         <div class="panel-header">
           <span class="panel-title">정리된 결과</span>
+          <label class="filter-opt">
+            <input type="checkbox" id="checkFilterN" checked>
+            ㄴ시작 줄 제외
+          </label>
         </div>
-        <textarea id="output" placeholder="정리된 결과가 표시됩니다."></textarea>
+        <textarea id="output" placeholder="정리된 결과가 표시됩니다." readonly></textarea>
       </section>
     </div>
   </div>
 
+  <!-- 안내 모달 팝업 -->
+  <div id="infoModal" class="modal-overlay">
+    <div class="modal-content">
+      <h2>정리 규칙 안내</h2>
+      <ul class="modal-list">
+        <li><strong>회원권 정보:</strong> VIP/쁘띠 결제액과 적립액을 깔끔하게 자동 정리하며 실장명과 날짜를 삭제합니다.</li>
+        <li><strong>금액 포맷:</strong> <code>700000</code> 또는 <code>700.000</code> 을 자동으로 <code>700,000원</code> 형태로 변환합니다.</li>
+        <li><strong>잔액 정보:</strong> 잔, 잔여, 잔금 등의 텍스트는 "잔액 : XXX원" 으로 변환합니다.</li>
+        <li><strong>제품명 통일:</strong> 비에녹스/코어는(국산 고순도)로, 하이/리즈/메디는 (국산일반)으로 정리합니다.</li>
+        <li><strong>약어 치환:</strong> 스보 → 스킨보톡스, 얼전 → 얼굴전체, 겨제 → 겨드랑이 제모, b → 보톡스 등 약어를 자동 변환합니다.</li>
+        <li><strong>불필요 내용 삭제:</strong> <code>*마크뷰+</code>, <code>1-1</code> 등 불필요한 정보를 제거합니다.</li>
+      </ul>
+      <button id="btnCloseInfo" class="btn btn-close">닫기</button>
+    </div>
+  </div>
+
   <div id="toast">복사되었습니다.</div>
+
+  <footer>
+    &copy; 2026. Designed & Developed by EUNBIN GA
+  </footer>
 
   <script>
     const elInput = document.getElementById('input');
@@ -223,6 +345,12 @@
     const elBtnCopy = document.getElementById('btnCopy');
     const elBtnClear = document.getElementById('btnClear');
     const elToast = document.getElementById('toast');
+    const elCheckFilterN = document.getElementById('checkFilterN');
+    
+    // 모달 관련
+    const elBtnOpenInfo = document.getElementById('btnOpenInfo');
+    const elBtnCloseInfo = document.getElementById('btnCloseInfo');
+    const elInfoModal = document.getElementById('infoModal');
 
     const kwPattern = /(승모근|이마|눈가|미간|자갈턱|종아리|허벅지|눈밑|입꼬리|스킨|사각턱|측두근|턱|광대|보상근|인중|침샘|주름)\s*(?:btx|b)\b/gi;
     const fillerPattern = /(팔자|옆볼|눈밑고랑|눈밑|앞볼|미간|이마|관자|관자놀이|입술|애교|입꼬리|코|콧대|턱|턱끝|마리오넷|주름|볼)\s*f\b/gi;
@@ -231,19 +359,14 @@
       let v = line.trim();
       if (!v) return null;
 
-      // 1. 특정 텍스트 삭제 (1-1 등)
-     v = v.replace(/\b1-1\b/g, " ");
+      if (elCheckFilterN.checked && v.startsWith("ㄴ")) return null;
 
-// 1-2. 추가 요청 단어 삭제 (*마크뷰+, 마크뷰 등)
-// 특수문자(*)가 포함되어 있으므로 이스케이프(\*) 처리와 긴 단어부터 매칭되도록 순서를 배치했습니다.
-v = v.replace(/\*마크뷰\+|\*마크뷰|마크뷰완료|마크뷰\+|마크뷰|\*마크\+|\*마\+|\*마크/g, "");
+      v = v.replace(/\b1-1\b/g, " ");
+      v = v.replace(/\*마크뷰\+|\*마크뷰|마크뷰완료|마크뷰\+|마크뷰|\*마크\+|\*마\+|\*마크/g, "");
       
-      // 불필요한 줄 필터링
-      if (v.startsWith("L") || v.startsWith("★") || v.startsWith("원장님") || 
-          v.startsWith("**") || v.startsWith("특이사항") || v.startsWith("이름") || 
-          v.startsWith("내원경로") || v.startsWith("~") || v.includes("전화번호")) return null;
+      const skipPrefixes = ["L", "★", "원장님", "**", "특이사항", "이름", "내원경로", "~"];
+      if (skipPrefixes.some(p => v.startsWith(p)) || v.includes("전화번호")) return null;
 
-      // 2. 기본 약어 치환
       v = v.replace(/스보/g, "스킨보톡스")
            .replace(/브제/g, "브라질리언 제모")
            .replace(/얼전|풀페이스|풀페/g, "얼굴전체")
@@ -256,63 +379,40 @@ v = v.replace(/\*마크뷰\+|\*마크뷰|마크뷰완료|마크뷰\+|마크뷰|\
       v = v.replace(/비에녹스|비에|코어/g, "국산 고순도")
            .replace(/하이(?!쿡스)|리즈|메디/g, "국산일반");
 
-      // 3. 회원권 패턴 (VIP 숫자 뒤에 '원' 붙지 않도록 미리 보호)
       v = v.replace(/(VIP|vip|쁘(?:띠)?)\s?(\d+)\s?(?:전환)?\s?\(\s?(\d+)\s?(?:결제)?\s+(\d+)\s?(?:적립)?\s?\)/gi, (match, p1, p2, p3, p4) => {
         const prefix = p1.toUpperCase().includes('VIP') ? 'VIP' : '쁘띠회원권';
         return `PROTECTED_${prefix}${p2}전환(${p3}만원 결제, ${p4}만원적립)`;
       });
 
-         v = v.replace(/(VIP|vip|쁘(?:띠)?)\s?(\d+)\s?\+\s?(\d+)(?:\([^)]*\))?/g, (match, p1, p2, p3) => {
+      v = v.replace(/(VIP|vip|쁘(?:띠)?)\s?(\d+)\s?\+\s?(\d+)(?:\([^)]*\))?/gi, (match, p1, p2, p3) => {
         const prefix = p1.includes('쁘') ? '쁘띠회원권' : 'VIP';
-        return `${prefix}${p2}만원+${p3}만원 적립`;
+        return `PROTECTED_${prefix}${p2}만원+${p3}만원 적립`;
       });
 
-      // 4. 잔액 패턴 보호
-     v = v.replace(/(?:잔액|잔여|잔금|잔|쁘잔)(?:\s|:|[-)>])+(\d{1,3}(?:[.,]\d{3})+|\d+)/g, (match, p1) => {
-  let numStr = p1.replace(/[.,]/g, "");
-  let num = parseInt(numStr, 10);
-  return !isNaN(num) ? `PROTECTED_잔액 ${num.toLocaleString()}원` : match;
-});
+      v = v.replace(/(?:잔액|잔여|잔금|잔|쁘잔)(?:\s|:|[-)>])+(\d{1,3}(?:[.,]\d{3})+|\d+)/g, (match, p1) => {
+        let numStr = p1.replace(/[.,]/g, "");
+        let num = parseInt(numStr, 10);
+        return !isNaN(num) ? `PROTECTED_잔액 ${num.toLocaleString()}원` : match;
+      });
 
-      // 5. 쁘띠/필러 약어 변환
       v = v.replace(kwPattern, (match, kw) => kw + "보톡스")
            .replace(fillerPattern, (match, kw) => kw + "필러");
 
-      // 6. 금액 및 숫자 처리
-      // 마침표(.)나 쉼표(,)가 포함된 숫자열 전체를 찾아 처리
       v = v.replace(/(\d{1,3}(?:[.,]\d{3})+|\d{3,12})/g, (match, p1, offset, string) => {
-        
-        // 주변 텍스트 확인 (이미 보호되었거나 단위가 붙었는지)
         const before = string.substring(0, offset);
         const after = string.substring(offset + match.length);
-        
         if (before.includes("PROTECTED_")) return match;
+        if (/^\s*(?:샷|cc|u|unit|유닛|회|kj|J|분|줄|KJ|만|결제|적립|전환)/i.test(after)) return match;
 
-        // 뒤에 단위가 오면 그대로 반환 (샷, cc, 줄 등)
-        if (/^\s*(?:샷|cc|u|unit|유닛|회|kj|J|분|줄|KJ|만|결제|적립|전환)/i.test(after)) {
-            return match;
-        }
-
-        // 숫자 정제 (마침표, 쉼표 제거 후 재포맷)
         let numStr = match.replace(/[.,]/g, "");
         let num = parseInt(numStr, 10);
         if (isNaN(num)) return match;
-        
         let formatted = num.toLocaleString();
-
-        // 뒤에 이미 '원'이 있는지 확인
-        if (/^\s*원/.test(after)) {
-            return formatted;
-        }
-
+        if (/^\s*원/.test(after)) return formatted;
         return formatted + "원";
       });
 
-      // 보호 태그 제거 및 중복 '원' 정리
-      return v.replace(/PROTECTED_/g, "")
-              .replace(/원원/g, "원")
-              .replace(/\s+/g, " ")
-              .trim();
+      return v.replace(/PROTECTED_/g, "").replace(/원원/g, "원").replace(/\s+/g, " ").trim();
     }
 
     function process() {
@@ -328,6 +428,11 @@ v = v.replace(/\*마크뷰\+|\*마크뷰|마크뷰완료|마크뷰\+|마크뷰|\
       elStatus.textContent = "완료";
     }
 
+    // 모달 핸들러
+    elBtnOpenInfo.onclick = () => elInfoModal.classList.add('show');
+    elBtnCloseInfo.onclick = () => elInfoModal.classList.remove('show');
+    elInfoModal.onclick = (e) => { if(e.target === elInfoModal) elInfoModal.classList.remove('show'); };
+
     elBtnCopy.addEventListener('click', () => {
       if (!elOutput.value) return;
       elOutput.select();
@@ -342,10 +447,7 @@ v = v.replace(/\*마크뷰\+|\*마크뷰|마크뷰완료|마크뷰\+|마크뷰|\
     });
 
     elInput.addEventListener('input', process);
+    elCheckFilterN.addEventListener('change', process);
   </script>
-    <footer>
-      &copy; 2026. Designed & Developed by EUNBIN GA
-    </footer>
-  </div>
 </body>
 </html>
