@@ -208,7 +208,7 @@
     .modal-content {
       background: white;
       width: 100%;
-      max-width: 450px;
+      max-width: 550px;
       border-radius: 20px;
       padding: 30px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.2);
@@ -319,14 +319,14 @@
     <div class="modal-content">
       <h2>정리 규칙 안내</h2>
       <ul class="modal-list">
-        <li><strong>회원권 정보:</strong> VIP/쁘띠 결제액과 적립액을 깔끔하게 자동 정리하며 실장명과 날짜를 삭제합니다.</li>
+        <li><strong>회원권 정보:</strong> VIP/쁘띠 결제금액과 적립금엑을 자동 정리하며 실장명과 날짜를 삭제합니다.</li>
         <li><strong>금액 포맷:</strong> <code>700000</code> 또는 <code>700.000</code> 을 자동으로 <code>700,000원</code> 형태로 변환합니다.</li>
         <li><strong>잔액 정보:</strong> 잔, 잔여, 잔금 등의 텍스트는 "잔액 : XXX원" 으로 변환합니다.</li>
         <li><strong>제품명 통일:</strong> 비에녹스/코어는(국산 고순도)로, 하이/리즈/메디는 (국산일반)으로 정리합니다.</li>
         <li><strong>약어 치환:</strong> 스보 → 스킨보톡스, 얼전 → 얼굴전체, 겨제 → 겨드랑이 제모 등 약어를 자동 변환합니다.</li>
-        <li><strong>자동 완성:</strong> 보상근, 침샘, 사각턱 등 뒤에 보톡스 표기가 없어도 뒤에 제품명/금액이 오면 자동으로 보톡스를 붙여줍니다.</li>
-        <li><strong>스마트 필터링:</strong> 'ㄴ' 시작 줄이라도 <strong>하이쿡스, 팁, 포함, 1-1, 금액(숫자)</strong>이 포함된 경우 중요 정보로 판단하여 유지합니다.</li>
-        <li><strong>불필요 내용 삭제:</strong> <code>*마크뷰+</code>, <code>1-1</code>(최종 정리 단계) 등 불필요한 정보를 제거합니다.</li>
+        <li><strong>자동 완성:</strong> "보톡스" 표기가 없어도 뒤에 제품명/금액이 오면 자동으로 보톡스를 붙여줍니다.</li>
+        <li><strong>스마트 필터링:</strong> 'ㄴ' 시작 줄이라도 하이쿡스, 팁, 1-1, 금액이 포함된 경우 중요 정보로 판단하여 유지합니다.</li>
+        <li><strong>불필요 내용 삭제:</strong> <code>*마크뷰+</code>, <code>1-1</code> 등 불필요한 정보를 제거합니다.</li>
       </ul>
       <button id="btnCloseInfo" class="btn btn-close">닫기</button>
     </div>
