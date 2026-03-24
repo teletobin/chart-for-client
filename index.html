@@ -411,7 +411,7 @@
     // API Key (Empty string as per environment rules, assuming provided at runtime)
     const apiKey = "AIzaSyCP9FRGQ4EKK_96U-hDhyQZDj1iRW2NCLg"; 
 
-    const btxKeywords = "승모근|이마|눈가|미간|콧등|눈썹위|눈썹산|자갈턱|종아리|허벅지|눈밑|입꼬리|사각턱|측두근||턱|광대|보상근|침샘";
+    const btxKeywords = "승모근|이마|눈가|미간|콧등|눈썹위|눈썹산|자갈턱|종아리|허벅지|눈밑|입꼬리|사각턱|측두근|턱|광대|보상근|침샘";
     const kwPattern = new RegExp(`(${btxKeywords}|스킨)\\s*(?:btx|b)\\b`, "gi");
     const autoBtxPattern = new RegExp(`(${btxKeywords})(?!\\s*보톡스)(?=\\s*(?:하이|비에|코어|리즈|메디|디스포트|제오민|엘러간|\\d))`, "gi");
     const fillerPattern = /(팔자|옆볼|눈밑고랑|눈밑|앞볼|미간|이마|관자|관자놀이|입술|애교|입꼬리|코|콧대|턱|턱끝|마리오넷|주름|볼)\s*f\b/gi;
