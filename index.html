@@ -372,19 +372,26 @@
     const elBtnCloseInfo = document.getElementById('btnCloseInfo');
     const elInfoModal = document.getElementById('infoModal');
 
-    // 1. btxKeywords 에 눈썹위, 눈썹산 추가
+    // 보톡스 키워드 목록
     const btxKeywords = "승모근|이마|눈가|미간|눈썹위|눈썹산|자갈턱|종아리|허벅지|눈밑|입꼬리|사각턱|파워사각턱|측두근|파워측두근|턱|광대|보상근|인중|침샘|주름|파워이중턱 침샘";
     
-    // 2. SyntaxError 수정: kwPattern 정규식 괄호 닫기 보정
+    // 명시적 btx/b 패턴
     const kwPattern = new RegExp(`(${btxKeywords}|스킨)\\s*(?:btx|b)\\b`, "gi");
     
+    // 제품명/숫자 앞 자동 보톡스 삽입 패턴
     const autoBtxPattern = new RegExp(`(${btxKeywords})(?!\\s*보톡스)(?=\\s*(?:하이|비에|코어|리즈|메디|디스포트|제오민|엘러간|\\d))`, "gi");
+    
+    // 필러 패턴
     const fillerPattern = /(팔자|옆볼|눈밑고랑|눈밑|앞볼|미간|이마|관자|관자놀이|입술|애교|입꼬리|코|콧대|턱|턱끝|마리오넷|주름|볼)\s*f\b/gi;
+
+    // 마취크림 패턴 (엠마오, 엠바오 등 오타 및 조합 대응)
+    const anestheticPattern = /(?:엠마오|엠바오)\s*(?:마취)?\s*(?:크림)?/g;
 
     function transformText(line) {
       let v = line.trim();
       if (!v) return null;
 
+      // ㄴ 시작 줄 필터링
       if (elCheckFilterN.checked && v.startsWith("ㄴ")) {
         const importantKeywords = ["하이쿡스", "팁", "1-1", "포함"];
         const hasImportantWord = importantKeywords.some(keyword => v.includes(keyword));
@@ -392,12 +399,17 @@
         if (!hasImportantWord && !hasPriceInfo) return null;
       }
 
+      // 기본 불필요 단어 제거
       v = v.replace(/\b1-1\b/g, " ");
       v = v.replace(/\*마크뷰\+|\*마크뷰|마크뷰완료|마크뷰\+|마크뷰|\*마크\+|\*마\+|\*마크/g, "");
       
       const skipPrefixes = ["★", "원장님", "**", "특이사항", "이름", "내원경로", "~"];
       if (skipPrefixes.some(p => v.startsWith(p)) || v.includes("전화번호")) return null;
 
+      // 1. 마취크림 일괄 변경 (엠마오 시리즈)
+      v = v.replace(anestheticPattern, "특수 마취 크림");
+
+      // 2. 약어 치환
       v = v.replace(/스보/g, "스킨보톡스")
            .replace(/브제/g, "브라질리언 제모")
            .replace(/얼전|풀페이스|풀페/g, "얼굴전체")
@@ -407,13 +419,14 @@
            .replace(/셀바이오/g, "셀바이브")
            .replace(/\bs[\.,]?\s*v\b/gi, "서비스");
 
-      // 보톡스 자동 완성
+      // 3. 보톡스 자동 완성
       v = v.replace(autoBtxPattern, "$1보톡스");
       
-      // 제품명 통일
+      // 4. 제품명 통일
       v = v.replace(/비에녹스|비에|코어/g, "국산 고순도")
            .replace(/하이(?!쿡스)|리즈|메디/g, "국산일반");
 
+      // 5. 회원권 정리
       v = v.replace(/(VIP|vip|쁘(?:띠)?)\s?(\d+)\s?(?:전환)?\s?\(\s?(\d+)\s?(?:결제)?\s+(\d+)\s?(?:적립)?\s?\)/gi, (match, p1, p2, p3, p4) => {
         const prefix = p1.toUpperCase().includes('VIP') ? 'VIP' : '쁘띠회원권';
         return `PROTECTED_${prefix}${p2}전환(${p3}만원 결제, ${p4}만원적립)`;
@@ -424,15 +437,18 @@
         return `PROTECTED_${prefix}${p2}만원+${p3}만원 적립`;
       });
 
+      // 6. 잔액 정리
       v = v.replace(/(?:잔액|잔여|잔금|잔|쁘잔)(?:\s|:|[-)>])+(\d{1,3}(?:[.,]\d{3})+|\d+)/g, (match, p1) => {
         let numStr = p1.replace(/[.,]/g, "");
         let num = parseInt(numStr, 10);
         return !isNaN(num) ? `PROTECTED_잔액 ${num.toLocaleString()}원` : match;
       });
 
+      // 7. 명시적 btx/b 및 필러 처리
       v = v.replace(kwPattern, (match, kw) => kw + "보톡스")
            .replace(fillerPattern, (match, kw) => kw + "필러");
 
+      // 8. 금액 포맷팅
       v = v.replace(/(\d{1,3}(?:[.,]\d{3})+|\d{3,12})/g, (match, p1, offset, string) => {
         const before = string.substring(0, offset);
         const after = string.substring(offset + match.length);
