@@ -532,11 +532,11 @@
       const activeBtn = document.querySelector(`.btn-tr[onclick*="${langCode}"]`);
       activeBtn.classList.add('loading');
       const originalText = activeBtn.innerText;
-      activeBtn.innerText = "⏳ 중...";
+      activeBtn.innerText = "번역중";
 
       elTranslatePanel.classList.add('show');
       elTranslateTitle.innerText = `AI ${langName} 번역 결과`;
-      elTranslateOutput.value = "구글 제미나이 실시간 번역중...잠시만 기다리세요";
+      elTranslateOutput.value = "Gemini 실시간 번역 중...잠시만 기다리세요";
 
       try {
         let retries = 0;
