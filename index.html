@@ -75,11 +75,12 @@
       margin-bottom: 12px;
     }
 
+    .links { display: flex; gap: 8px; }
     .actions { display: flex; gap: 8px; }
 
     .btn {
       border: none;
-      padding: 10px 18px;
+      padding: 10px 16px;
       border-radius: 12px;
       font-weight: 700;
       cursor: pointer;
@@ -88,6 +89,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      text-decoration: none;
     }
 
     .btn-info {
@@ -95,8 +97,18 @@
       color: var(--text-light) !important;
       border: 1px solid #e5e7eb;
     }
-    .btn-info:hover {
-      background: #e5e7eb;
+    .btn-info:hover { background: #e5e7eb; }
+
+    .btn-link {
+      background: #ffffff;
+      color: var(--text-light) !important;
+      border: 1px solid #e5e7eb;
+      font-weight: 600;
+      font-size: 12px;
+    }
+    .btn-link:hover { 
+      border-color: var(--primary); 
+      color: var(--primary-dark) !important;
     }
 
     .btn-copy {
@@ -126,8 +138,9 @@
     @media (max-width: 850px) {
       .editor-grid { grid-template-columns: 1fr; gap: 12px; }
       .toolbar { flex-direction: column; align-items: stretch; margin-bottom: 10px; }
+      .links { overflow-x: auto; padding-bottom: 4px; }
       .actions { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
-      .btn-info { justify-content: center; }
+      .btn { white-space: nowrap; }
     }
 
     .panel {
@@ -209,7 +222,7 @@
     .modal-content {
       background: white;
       width: 100%;
-      max-width: 650px;
+      max-width: 600px;
       border-radius: 20px;
       padding: 30px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.2);
@@ -284,9 +297,17 @@
 
   <div class="container">
     <div class="toolbar">
-      <button id="btnOpenInfo" class="btn btn-info">
-        <span>차트 정리 안내
-      </button>
+      <div class="links">
+        <button id="btnOpenInfo" class="btn btn-info">
+          <span>💡</span> 차트 정리 안내
+        </button>
+        <a href="https://papago.naver.com/" target="_blank" class="btn btn-link">
+          파파고 번역
+        </a>
+        <a href="https://translate.google.co.kr/" target="_blank" class="btn btn-link">
+          구글 번역
+        </a>
+      </div>
       <div class="actions">
         <button id="btnClear" class="btn btn-clear">CLEAR</button>
         <button id="btnCopy" class="btn btn-copy">텍스트 복사</button>
@@ -325,7 +346,7 @@
         <li><strong>잔액 정보:</strong> 잔, 잔여, 잔금 등의 텍스트는 "잔액 : XXX원" 으로 변환합니다.</li>
         <li><strong>제품명 통일:</strong> 비에녹스/코어는(국산 고순도)로, 하이/리즈/메디는 (국산일반)으로 정리합니다.</li>
         <li><strong>약어 치환:</strong> 스보 → 스킨보톡스, 얼전 → 얼굴전체, 겨제 → 겨드랑이 제모 등 약어를 자동 변환합니다.</li>
-        <li><strong>자동 완성:</strong> 사각턱, 승모근 등 부위명 뒤에 보톡스 제품명 또는 금액이 오면 생략된 경우 "보톡스"를 붙여줍니다.</li>
+        <li><strong>자동 완성:</strong> 사각턱, 승모근 등 부위명 뒤에 제품명/금액이 오면 자동으로 보톡스를 붙여줍니다. (올리디아스킨 등 시술명은 보존)</li>
         <li><strong>스마트 필터링:</strong> 'ㄴ' 시작 줄이라도 하이쿡스, 팁, 1-1, 금액 등이 포함된 경우 유지합니다.</li>
       </ul>
       <button id="btnCloseInfo" class="btn btn-close">닫기</button>
@@ -351,22 +372,19 @@
     const elBtnCloseInfo = document.getElementById('btnCloseInfo');
     const elInfoModal = document.getElementById('infoModal');
 
-    // '스킨'을 제외한 부위명 목록 (스킨은 스킨보톡스 등 명시적 표현시에만 처리하도록 변경)
-    const btxKeywords = "승모근|이마|눈가|미간|자갈턱|종아리|허벅지|눈밑|입꼬리|사각턱|파워사각턱|측두근|파워측두근|턱|광대|보상근|인중|침샘|주름|파워이중턱 침샘";
+    // 1. btxKeywords 에 눈썹위, 눈썹산 추가
+    const btxKeywords = "승모근|이마|눈가|미간|눈썹위|눈썹산|자갈턱|종아리|허벅지|눈밑|입꼬리|사각턱|파워사각턱|측두근|파워측두근|턱|광대|보상근|인중|침샘|주름|파워이중턱 침샘";
     
-    // 명시적인 btx/b 패턴 (이때는 스킨도 포함 가능하도록 별도 처리)
+    // 2. SyntaxError 수정: kwPattern 정규식 괄호 닫기 보정
     const kwPattern = new RegExp(`(${btxKeywords}|스킨)\\s*(?:btx|b)\\b`, "gi");
     
-    // 자동 완성: 뒤에 제품명이나 숫자가 올 때만 보톡스 삽입 (스킨은 시술명 오인 방지를 위해 제외)
     const autoBtxPattern = new RegExp(`(${btxKeywords})(?!\\s*보톡스)(?=\\s*(?:하이|비에|코어|리즈|메디|디스포트|제오민|엘러간|\\d))`, "gi");
-
     const fillerPattern = /(팔자|옆볼|눈밑고랑|눈밑|앞볼|미간|이마|관자|관자놀이|입술|애교|입꼬리|코|콧대|턱|턱끝|마리오넷|주름|볼)\s*f\b/gi;
 
     function transformText(line) {
       let v = line.trim();
       if (!v) return null;
 
-      // ㄴ 시작 줄 제외 로직
       if (elCheckFilterN.checked && v.startsWith("ㄴ")) {
         const importantKeywords = ["하이쿡스", "팁", "1-1", "포함"];
         const hasImportantWord = importantKeywords.some(keyword => v.includes(keyword));
@@ -374,14 +392,12 @@
         if (!hasImportantWord && !hasPriceInfo) return null;
       }
 
-      // 1-1 및 마크뷰 제거
       v = v.replace(/\b1-1\b/g, " ");
       v = v.replace(/\*마크뷰\+|\*마크뷰|마크뷰완료|마크뷰\+|마크뷰|\*마크\+|\*마\+|\*마크/g, "");
       
       const skipPrefixes = ["★", "원장님", "**", "특이사항", "이름", "내원경로", "~"];
       if (skipPrefixes.some(p => v.startsWith(p)) || v.includes("전화번호")) return null;
 
-      // 약어 치환 (스보 -> 스킨보톡스로 명확히 치환하여 보호)
       v = v.replace(/스보/g, "스킨보톡스")
            .replace(/브제/g, "브라질리언 제모")
            .replace(/얼전|풀페이스|풀페/g, "얼굴전체")
@@ -391,14 +407,13 @@
            .replace(/셀바이오/g, "셀바이브")
            .replace(/\bs[\.,]?\s*v\b/gi, "서비스");
 
-      // 보톡스 자동 완성 (부위명 뒤)
+      // 보톡스 자동 완성
       v = v.replace(autoBtxPattern, "$1보톡스");
-
+      
       // 제품명 통일
       v = v.replace(/비에녹스|비에|코어/g, "국산 고순도")
            .replace(/하이(?!쿡스)|리즈|메디/g, "국산일반");
 
-      // 회원권 정보 정리
       v = v.replace(/(VIP|vip|쁘(?:띠)?)\s?(\d+)\s?(?:전환)?\s?\(\s?(\d+)\s?(?:결제)?\s+(\d+)\s?(?:적립)?\s?\)/gi, (match, p1, p2, p3, p4) => {
         const prefix = p1.toUpperCase().includes('VIP') ? 'VIP' : '쁘띠회원권';
         return `PROTECTED_${prefix}${p2}전환(${p3}만원 결제, ${p4}만원적립)`;
@@ -409,24 +424,20 @@
         return `PROTECTED_${prefix}${p2}만원+${p3}만원 적립`;
       });
 
-      // 잔액 정보 정리
       v = v.replace(/(?:잔액|잔여|잔금|잔|쁘잔)(?:\s|:|[-)>])+(\d{1,3}(?:[.,]\d{3})+|\d+)/g, (match, p1) => {
         let numStr = p1.replace(/[.,]/g, "");
         let num = parseInt(numStr, 10);
         return !isNaN(num) ? `PROTECTED_잔액 ${num.toLocaleString()}원` : match;
       });
 
-      // 명시적 btx/b 패턴 및 필러 처리
       v = v.replace(kwPattern, (match, kw) => kw + "보톡스")
            .replace(fillerPattern, (match, kw) => kw + "필러");
 
-      // 금액 콤마 및 '원' 추가
       v = v.replace(/(\d{1,3}(?:[.,]\d{3})+|\d{3,12})/g, (match, p1, offset, string) => {
         const before = string.substring(0, offset);
         const after = string.substring(offset + match.length);
         if (before.includes("PROTECTED_")) return match;
         if (/^\s*(?:샷|cc|u|unit|유닛|회|kj|J|분|줄|KJ|만|결제|적립|전환)/i.test(after)) return match;
-
         let numStr = match.replace(/[.,]/g, "");
         let num = parseInt(numStr, 10);
         if (isNaN(num)) return match;
