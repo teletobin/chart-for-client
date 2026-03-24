@@ -364,8 +364,10 @@ Please translate the following Korean clinic chart notes into ${langName}.
 
 Terminology Rules:
 - Translate "하이쿡스" as "${hicookTranslation}".
-- Keep filler and lifting procedure names in English (e.g., Juvederm, Ultherapy, InMode).
-- Translate "원" as "won" or local currency equivalent.
+- Keep filler and, skin booster, lifting procedure names in English (e.g., Juvelook, Laetigen, Rejuran, Juvederm, Ultherapy, InMode).
+- Translate "원" as "won"
+- Translate "블리비" as "vely B"
+- Translate "리투오" as "Elravie Re2O"
 - Preserve the clean line-by-line format.
 
 Notes to translate:
@@ -380,7 +382,7 @@ Please provide ONLY the translated text.`;
       textArea.select();
       try {
         document.execCommand('copy');
-        showToast(`번역 요청 프롬프트 복사완료!<br> 제미나이 채팅창에 복사된 프롬프트를 붙여넣으세요`);
+        showToast(`번역 요청 프롬프트 복사완료!<br> 제미나이로 이동하면 채팅창에 복사된 프롬프트를 붙여넣으세요`);
         setTimeout(() => {
           window.open("https://gemini.google.com/app", "_blank");
         }, 3500);
