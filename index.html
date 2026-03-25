@@ -21,7 +21,7 @@
       --border: rgba(240, 98, 146, 0.2);
       --shadow: 0 4px 20px rgba(0, 0, 0, 0.05); 
       --radius: 16px;
-      --pill-radius: 50px; /* 더 라운드한 반경 */
+      --pill-radius: 50px; 
     }
 
     * { 
@@ -65,7 +65,7 @@
     .container {
       max-width: 1000px; 
       margin: 0 auto;
-      padding: 15px 10px; /* 좌우 패딩을 살짝 줄임 */
+      padding: 15px 10px;
       width: 100%;
       flex: 1;
     }
@@ -121,7 +121,7 @@
     }
 
     .btn-tr-white {
-      padding: 6px 14px; /* 너비가 좁아질 때를 대비해 약간 축소 */
+      padding: 6px 14px;
       font-size: 11px; 
       background: var(--primary);
       border: none;
@@ -138,7 +138,7 @@
 
     .editor-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr; /* 브라우저 폭이 좁아져도 강제로 좌우 유지 */
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
       width: 100%;
     }
@@ -179,15 +179,19 @@
       padding: 12px;
       border: none;
       resize: none;
-      font-size: 13px; /* 좁은 폭을 위해 폰트 사이즈 살짝 조정 */
+      font-size: 13px;
       line-height: 1.6;
       background: transparent;
       outline: none;
       color: var(--text);
     }
 
-    textarea, input[type="text"] {
+    textarea, input[type="text"], input[type="checkbox"] {
       cursor: text !important;
+    }
+    
+    .btn-tr-white, .btn, input[type="checkbox"] {
+      cursor: pointer !important;
     }
 
     #toast {
@@ -204,6 +208,7 @@
       z-index: 1000;
       text-align: center;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      pointer-events: none;
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
 
@@ -224,17 +229,17 @@
       max-width: 400px;
       width: 90%;
     }
-       footer {
+
+    footer {
       padding: 20px 0;
       text-align: center;
       font-size: 13px;
-      color: var(--text-sub);
+      color: var(--text-light);
       letter-spacing: 0.3px;
       font-weight: 500;
       margin-top: 10px;
     }
 
-    /* 반응형 지점을 850px에서 500px로 대폭 낮춤 (분할 화면 최적화) */
     @media (max-width: 500px) {
       .editor-grid { grid-template-columns: 1fr; }
       .toolbar { flex-direction: column; align-items: stretch; }
@@ -308,10 +313,11 @@
   </div>
 
   <div id="toast">복사되었습니다.</div>
+  
   <footer>
     &copy; 2026. Designed & Developed by EUNBIN GA
   </footer>
-</div>
+
   <script>
     const elInput = document.getElementById('input');
     const elOutput = document.getElementById('output');
@@ -363,15 +369,15 @@
       elOutput.value = results.join('\n');
     }
 
-  function requestGemini(langName) {
-  const text = elOutput.value.trim();
-  if (!text) { showToast("정리된 텍스트가 없습니다."); return; }
+    function requestGemini(langName) {
+      const text = elOutput.value.trim();
+      if (!text) { showToast("정리된 텍스트가 없습니다."); return; }
 
-  let hicookTranslation = "Injector";
-  if (langName === 'Japanese') hicookTranslation = "インジェクター";
-  else if (langName === 'Chinese') hicookTranslation = "水光注射仪";
+      let hicookTranslation = "Injector";
+      if (langName === 'Japanese') hicookTranslation = "インジェクター";
+      else if (langName === 'Chinese') hicookTranslation = "水光注射仪";
 
-  const prompt = `You are a professional medical clinic translator. 
+      const prompt = `You are a professional medical clinic translator. 
 Please translate the following Korean clinic chart notes into ${langName}.
 
 Terminology Rules:
@@ -383,6 +389,11 @@ Terminology Rules:
 - Translate "리투오" as "Elravie Re2O"
 - Translate "선결제", "선차감" as "KEEP"
 - Translate "채움", "더채움" as "CHAEWOOM KOREAN PREMIUM"
+- Translate "에버클V" as "Everkle V (PLLA Collagen booster)"
+- Translate "필로드" as "Fillroad(PN Premium booster)"
+- Translate "국산고순도" as "korean premium"
+- Translate "국산일반" as "korean standard"
+- Translate "디스포트" as "Dysport"
 
 - Translate "라라필" as "LHALA PEELING"
 - Translate "플라필" as:
@@ -391,7 +402,7 @@ Terminology Rules:
   Chinese: "铂金焕肤"
 - Translate "셀바이브" as:
   English: "Cellvive (Premium LDM)"
-  Japanese: "セルバイブ（プレミアムLDM）"
+  Japanese: "セル바이브（プレミアムLDM）"
   Chinese: "Cellvive（高端LDM）"
 - Translate "모공쏙쏙" as:
   English: "Aqua Peel & Hydration Care Set"
@@ -413,7 +424,6 @@ Notes to translate:
 ${text}
 ---
 Please provide ONLY the translated text.`;
-}
 
       const textArea = document.createElement("textarea");
       textArea.value = prompt;
