@@ -363,15 +363,15 @@
       elOutput.value = results.join('\n');
     }
 
-    function requestGemini(langName) {
-      const text = elOutput.value.trim();
-      if (!text) { showToast("정리된 텍스트가 없습니다."); return; }
+  function requestGemini(langName) {
+  const text = elOutput.value.trim();
+  if (!text) { showToast("정리된 텍스트가 없습니다."); return; }
 
-      let hicookTranslation = "Injector";
-      if (langName === 'Japanese') hicookTranslation = "インジェクター";
-      else if (langName === 'Chinese') hicookTranslation = "水光注射仪";
+  let hicookTranslation = "Injector";
+  if (langName === 'Japanese') hicookTranslation = "インジェクター";
+  else if (langName === 'Chinese') hicookTranslation = "水光注射仪";
 
-      const prompt = `You are a professional medical clinic translator. 
+  const prompt = `You are a professional medical clinic translator. 
 Please translate the following Korean clinic chart notes into ${langName}.
 
 Terminology Rules:
@@ -383,6 +383,29 @@ Terminology Rules:
 - Translate "리투오" as "Elravie Re2O"
 - Translate "선결제", "선차감" as "KEEP"
 - Translate "채움", "더채움" as "CHAEWOOM KOREAN PREMIUM"
+
+- Translate "라라필" as "LHALA PEELING"
+- Translate "플라필" as:
+  English: "Platinum Peeling"
+  Japanese: "プラチナピーリング"
+  Chinese: "铂金焕肤"
+- Translate "셀바이브" as:
+  English: "Cellvive (Premium LDM)"
+  Japanese: "セルバイブ（プレミアムLDM）"
+  Chinese: "Cellvive（高端LDM）"
+- Translate "모공쏙쏙" as:
+  English: "Aqua Peel & Hydration Care Set"
+  Japanese: "アクアピール＆保湿ケアセット"
+  Chinese: "水光焕肤＋保湿护理套餐"
+- Translate "한정가" as:
+  English: "Limited Price"
+  Japanese: "限定価格"
+  Chinese: "限时价"
+- Translate "체험가" as:
+  English: "Trial Price"
+  Japanese: "体験価格"
+  Chinese: "体验价"
+
 - Preserve the clean line-by-line format.
 
 Notes to translate:
@@ -390,6 +413,7 @@ Notes to translate:
 ${text}
 ---
 Please provide ONLY the translated text.`;
+}
 
       const textArea = document.createElement("textarea");
       textArea.value = prompt;
