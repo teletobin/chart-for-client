@@ -401,13 +401,21 @@ Terminology Rules:
 - Translate "원" as "won"
 - Translate "세르프" "쎄르프" as "XERF"
 - Translate "블리비" as "velyB "
+- Translate "스텔라 리써FX" as "Stellar ResurFX"
+- Translate "인라이튼 니플스" as "Enlighten NIFLS"
 - Translate "리투오" as "Elravie Re2O"
 - Translate "선결제", "선차감" as "KEEP"
 - Translate "채움", "더채움" as "CHAEWOOM KOREAN PREMIUM"
-- Translate "에버클V" as "Everkle V (PLLA Collagen booster)"
+- Translate "에버클V" as "Everkle V"
 - Translate "필로드" as "Fillroad(PN Premium booster)"
-- Translate "국산고순도" as "korean premium"
-- Translate "국산일반" as "korean standard"
+- Translate "국산고순도" as:
+　English: "korean premium"
+  Japanese: "韓国プレミアム"
+  Chinese: "韩国高纯度"
+- Translate "국산일반" as:
+　English: "korean standard"
+  Japanese: "韓国一般"
+  Chinese: "韩国高纯度"
 - Translate "디스포트" as "Dysport"
 
 - Translate "라라필" as "LHALA PEELING"
@@ -446,7 +454,7 @@ Please provide ONLY the translated text.`;
       textArea.select();
       try {
         document.execCommand('copy');
-        showToast(`번역 요청 프롬프트 복사완료!<br> 제미나이로 이동하면 채팅창에 복사된 프롬프트를 붙여넣으세요`);
+        showToast(`번역 요청 프롬프트 복사완료!<br> 제미나이로 연결됩니다. 복사된 프롬프트를 바로 붙여넣으세요`);
         setTimeout(() => {
           window.open("https://gemini.google.com/app", "_blank");
         }, 3500);
