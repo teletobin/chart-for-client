@@ -347,7 +347,7 @@
 v = v.replace(/(?:엠마오|엠바오)\s*(?:마취)?\s*(?:크림)?/g, "특수 마취 크림 ");
 
 v = v
-  .replace(/스텔라\s*리써|리써\s*FX|리써FX|리써/g, "스텔라 리써FX")
+  v = v.replace(/(?<!스텔라\s*)리써(?!FX)/gi, "스텔라 리써FX");
   .replace(/스텔라\s*IPL|IPL/gi, "스텔라 IPL")
   .replace(/인라이튼\s*니플스|니플스/g, "인라이튼 니플스")
   .replace(/(셀바|셀바이오|LDM)(?!이브)/gi, "셀바이브")
