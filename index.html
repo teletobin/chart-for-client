@@ -364,7 +364,7 @@ v = v
 
 v = v
   .replace(autoBtxPattern, "$1보톡스")
-  .replace(/비에녹스|비에|코어/g, "국산 고순도")
+  .replace(/비에녹스|(?<!엘라)비에|코어/gi, "국산 고순도")
   .replace(/하이(?!쿡스)|리즈|메디/g, "국산일반");
       
       v = v.replace(/(VIP|vip|쁘(?:띠)?)\s?(\d+)\s?(?:전환)?\s?\(\s?(\d+)\s?(?:결제)?\s+(\d+)\s?(?:적립)?\s?\)/gi, (m, p1, p2, p3, p4) => `PROTECTED_${p1.toUpperCase().includes('VIP')?'VIP':'쁘띠회원권'}${p2}전환(${p3}만원 결제, ${p4}만원적립)`);
