@@ -11,17 +11,19 @@
   <style>
     :root {
       color-scheme: light;
-      --bg: #ffffff; 
-      --primary: #f06292; /* 메인 핑크 */
-      --primary-dark: #d81b60; 
-      --primary-light: #fce4ec; /* 배경 및 상단 핑크 */
-      --text: #373d49; /* 세련된 다크 그레이 */
-      --text-light: #6b7280;
+      --bg: #ffffff;
+      --primary: #fadafd;
+      --primary-dark: #6b5a7a;
+      --primary-light: #f0e8f0;
+      --primary-bg: #FFF5FA;
+      --result-bg: rgba(255,240,247,0.4);
+      --text: #1a1a1a;
+      --text-light: #666;
       --card-bg: #ffffff;
-      --border: rgba(240, 98, 146, 0.2);
-      --shadow: 0 4px 20px rgba(0, 0, 0, 0.05); 
-      --radius: 16px;
-      --pill-radius: 50px; 
+      --border: #f0dce8;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      --radius: 8px;
+      --pill-radius: 50px;
     }
 
     * { 
@@ -44,14 +46,7 @@
     }
 
     header {
-      padding: 12px 20px;
-      text-align: center;
-      background: var(--primary-light); 
-      border-bottom: 2px solid rgba(240, 98, 146, 0.1);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 10px rgba(240, 98, 146, 0.05);
+      display: none;
     }
 
     header h1 {
@@ -81,36 +76,41 @@
     .action-top { display: flex; gap: 8px; }
 
     .btn {
-      border: none;
-      padding: 10px 16px;
-      border-radius: var(--radius);
+      border: 1px solid #ddd;
+      padding: 8px 16px;
+      border-radius: 8px;
       font-weight: 700;
-      transition: all 0.2s ease;
-      font-size: 13px;
+      transition: all 0.15s;
+      font-size: 12px;
       display: flex;
       align-items: center;
       gap: 6px;
       text-decoration: none;
       white-space: nowrap;
+      cursor: pointer;
+      background: #fff;
+      color: #888 !important;
     }
 
-    .btn-info { background: #f3f4f6; color: var(--text-light) !important; border: 1px solid #e5e7eb; }
-    .btn-copy { background: var(--primary); color: white !important; box-shadow: 0 4px 12px rgba(240, 98, 146, 0.15); }
-    .btn-clear { background: #fff; color: var(--text-light) !important; border: 1px solid #eee; }
+    .btn-info { background: #fff; color: #888 !important; border: 1px solid #ddd; }
+    .btn-info:hover { background: #fafafa; }
+    .btn-copy { border: 1px solid #6f6864; background: #6f6864; color: #fff !important; padding: 8px 20px; }
+    .btn-copy:hover { background: #5f5854; border-color: #5f5854; }
+    .btn-clear { background: #fff; color: #888 !important; border: 1px solid #ddd; }
     
     .translate-bar {
-      background: var(--primary-light);
+      background: #FFE8F2;
       padding: 12px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      border-top: 1px solid rgba(240, 98, 146, 0.1);
+      border-top: 1px solid #ddd;
     }
 
     .translate-label {
-      font-size: 13px; 
-      font-weight: 800;
+      font-size: 14px;
+      font-weight: 700;
       color: var(--text-light);
       white-space: nowrap;
     }
@@ -121,48 +121,47 @@
     }
 
     .btn-tr-white {
-      padding: 6px 14px;
-      font-size: 11px; 
-      background: var(--primary);
-      border: none;
-      color: white !important; 
-      border-radius: var(--pill-radius); 
+      padding: 8px 16px;
+      font-size: 12px;
+      background: #6f6864;
+      border: 1px solid #6f6864;
+      color: white !important;
+      border-radius: 8px;
       font-weight: 700;
-      transition: all 0.2s;
+      transition: all 0.15s;
     }
     .btn-tr-white:hover {
-      background: var(--primary-dark);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 10px rgba(240, 98, 146, 0.25);
+      background: #5f5854;
+      border-color: #5f5854;
     }
 
     .editor-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 20px;
       width: 100%;
     }
 
     .panel {
-      background: var(--card-bg);
+      background: var(--result-bg);
       border-radius: var(--radius);
-      border: 1px solid var(--border);
+      border: none;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      box-shadow: var(--shadow);
+      box-shadow: 0 0 15px rgba(255, 232, 242, 0.4), 0 4px 15px rgba(0, 0, 0, 0.08);
     }
 
     .panel-header {
       padding: 10px 12px;
-      background: #fafafa;
-      border-bottom: 1px solid #f0f0f0;
+      background: #FFE8F2;
+      border-bottom: 1px solid #ddd;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
-    .panel-title { font-size: 13px; font-weight: 700; color: var(--text-light); }
+    .panel-title { font-size: 14px; font-weight: 700; color: var(--text-light); }
 
     .filter-opt {
       display: flex;
@@ -186,8 +185,13 @@
       color: var(--text);
     }
 
-    textarea, input[type="text"], input[type="checkbox"] {
+    textarea, input[type="text"] {
       cursor: text !important;
+    }
+
+    input[type="checkbox"] {
+      accent-color: #666;
+      cursor: pointer !important;
     }
     
     .btn-tr-white, .btn, input[type="checkbox"] {
@@ -251,9 +255,10 @@
 </head>
 
 <body>
-  <header>
-    <h1>블리비 홍대점 | 고객안내용 차트수정</h1>
-  </header>
+
+  <div style="max-width: 1000px; margin: 0 auto; padding: 20px 10px 0 10px; width: 100%;">
+    <div style="font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: #666; margin-bottom: 12px;">고객안내용 차트 수정</div>
+  </div>
 
   <div class="container">
     <div class="toolbar">
